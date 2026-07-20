@@ -1,0 +1,16 @@
+# ─── Environment Variables ─────────────────────────────
+# Copy this file as .env and fill in your values
+
+# Server
+PORT=5000
+NODE_ENV=development
+
+# MongoDB Atlas (get free at https://www.mongodb.com/atlas)
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/aylthra?retryWrites=true&w=majority
+
+# JWT Secret (generate a random string)
+JWT_SECRET=aylthra_super_secret_key_change_this_in_production
+JWT_EXPIRES_IN=7d
+
+# Frontend URL (for CORS)
+CLIENT_URL=http://localhost:5173
