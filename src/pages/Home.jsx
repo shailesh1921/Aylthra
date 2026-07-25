@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { collections } from '../data/products';
 import ProductCard from '../components/ProductCard';
 import { supabase } from '../lib/supabase';
+import Hero from '../components/Hero';
 
 // ─── Home Page ─────────────────────────────────────────
 const fadeUp = {
@@ -39,61 +40,8 @@ export default function Home() {
 
   return (
     <div className="page-enter">
-      {/* ── Hero Section ──────────────────────────────── */}
-      <section className="relative h-[85vh] min-h-[600px] overflow-hidden bg-brand-black">
-        <img
-          src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1600&h=900&fit=crop"
-          alt="AYLTHRA Collection"
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-
-        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center text-white px-4">
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={0}
-            className="text-xs sm:text-sm tracking-[0.3em] uppercase mb-4 text-brand-accent"
-          >
-            New Collection 2026
-          </motion.p>
-          <motion.h1
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={1}
-            className="text-4xl sm:text-6xl lg:text-7xl font-heading font-bold mb-6 max-w-4xl leading-tight"
-          >
-            Redefine Your
-            <br />
-            <em className="font-normal">Style</em>
-          </motion.h1>
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={2}
-            className="text-sm sm:text-base text-gray-300 mb-8 max-w-lg"
-          >
-            Discover curated collections of premium clothing designed for the modern individual.
-          </motion.p>
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={3}
-            className="flex gap-4"
-          >
-            <Link to="/shop" className="bg-white text-brand-black px-8 py-3.5 text-xs tracking-widest uppercase font-semibold hover:bg-brand-accent hover:text-white transition-all duration-300">
-              Shop Now
-            </Link>
-            <Link to="/about" className="border-2 border-white text-white px-8 py-3.5 text-xs tracking-widest uppercase font-semibold hover:bg-white hover:text-brand-black transition-all duration-300">
-              Our Story
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      {/* ── App-Showcase Hero Section ─────────────────── */}
+      <Hero />
 
       {/* ── Category Cards ───────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
