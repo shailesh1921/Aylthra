@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_Z9yducswFV0s6bB6OuB2plMDQqVN",
+  "orgId": "team_QabuZ52qCVGljYAT6YPp5SDU",
+  "projectName": "aylthra",
+  "settings": {
+    "createdAt": 1782552867138,
+    "framework": "services",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}

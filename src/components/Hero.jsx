@@ -5,6 +5,7 @@ import {
   Search, ArrowRight, Bell, User, Sliders, 
   ArrowLeft, ShoppingBag, Check, Star 
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 // ─── CSS Variables & Styling Tokens ────────────────────
 const STYLE_TOKENS = {
@@ -55,22 +56,62 @@ const ANIMATIONS_CSS = `
 
 export default function Hero() {
   const [activeScreen, setActiveScreen] = useState('feed'); // 'feed' (Screen 1) or 'detail' (Screen 2)
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSize, setSelectedSize] = useState('S');
-  const [selectedColor, setSelectedColor] = useState('beige');
+  const [searchQuery, setSearchQuery] = useState(''); // for AI stylist
+  const [phoneSearchQuery, setPhoneSearchQuery] = useState(''); // for phone mockup
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [productsList, setProductsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   
   // Lazy load image state helper
   const [imgLoaded, setImgLoaded] = useState({
-    blazer: false,
-    coat: false,
     dress: false,
   });
 
   const handleImageLoad = (key) => {
     setImgLoaded(prev => ({ ...prev, [key]: true }));
   };
+
+  // Fetch live products from Supabase
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*');
+        if (error) throw error;
+        setProductsList(data || []);
+        
+        // Set default selected product for screen 2
+        if (data && data.length > 0) {
+          setSelectedProduct(data[0]);
+          if (data[0].sizes && data[0].sizes.length > 0) {
+            setSelectedSize(data[0].sizes[0]);
+          }
+          if (data[0].colors && data[0].colors.length > 0) {
+            setSelectedColor(data[0].colors[0]);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching products inside Hero mockup:', err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  // Filter products on phone screen search
+  const filteredPhoneProducts = productsList.filter(p => {
+    if (!phoneSearchQuery) return true;
+    const q = phoneSearchQuery.toLowerCase();
+    return p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q);
+  });
 
   return (
     <div 
@@ -222,8 +263,7 @@ export default function Hero() {
 
           {/* Device Wrapper */}
           <div 
-            onClick={() => setActiveScreen(prev => prev === 'feed' ? 'detail' : 'feed')}
-            className="relative w-full max-w-[310px] sm:max-w-[330px] aspect-[9/18.5] bg-[#1a1a1a] rounded-[48px] p-2.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] border-4 border-[#2b2b2b] cursor-pointer hover:scale-[1.03] rotate-[-1.5deg] hover:rotate-0 hover:shadow-[0_30px_70px_-10px_rgba(0,0,0,0.4)] transition-all duration-500 group select-none"
+            className="relative w-full max-w-[310px] sm:max-w-[330px] aspect-[9/18.5] bg-[#1a1a1a] rounded-[48px] p-2.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] border-4 border-[#2b2b2b] hover:scale-[1.03] rotate-[-1.5deg] hover:rotate-0 hover:shadow-[0_30px_70px_-10px_rgba(0,0,0,0.4)] transition-all duration-500 group select-none"
           >
             {/* Notch */}
             <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-32 h-6 bg-[#1a1a1a] rounded-b-2xl z-[30] flex items-center justify-center">
@@ -253,8 +293,8 @@ export default function Hero() {
                       New Arrivals
                     </h3>
                     <div className="flex gap-2.5 text-gray-700">
-                      <Bell className="w-4 h-4 hover:text-[#c9a96e] transition-colors" />
-                      <User className="w-4 h-4 hover:text-[#c9a96e] transition-colors" />
+                      <Bell className="w-4 h-4 hover:text-[#c9a96e] transition-colors cursor-pointer" />
+                      <User className="w-4 h-4 hover:text-[#c9a96e] transition-colors cursor-pointer" />
                     </div>
                   </div>
 
@@ -264,8 +304,9 @@ export default function Hero() {
                       <Search className="w-3.5 h-3.5 text-gray-400 mr-2" />
                       <input 
                         type="text" 
+                        value={phoneSearchQuery}
+                        onChange={(e) => setPhoneSearchQuery(e.target.value)}
                         placeholder="Search items..." 
-                        disabled
                         className="bg-transparent text-xs w-full outline-none text-gray-700 placeholder-gray-400 font-normal"
                       />
                     </div>
@@ -276,59 +317,60 @@ export default function Hero() {
 
                   {/* Scrollable feed products */}
                   <div className="space-y-3 flex-1 overflow-y-auto scrollbar-none pr-[1px]">
-                    
-                    {/* Card 1: Linen Blazer */}
-                    <div className="rounded-xl overflow-hidden border border-gray-100 bg-[#fafafa] hover:shadow-md transition-all duration-300 group/card">
-                      <div className="relative aspect-[4/3] bg-gray-200">
-                        {!imgLoaded.blazer && (
-                          <div className="absolute inset-0 bg-gradient-to-tr from-[#ead7d7] to-[#ebdbe5] animate-pulse" />
-                        )}
-                        <img 
-                          src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=450&h=338&fit=crop" 
-                          alt="Linen Casual Blazer"
-                          onLoad={() => handleImageLoad('blazer')}
-                          className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded.blazer ? 'opacity-100' : 'opacity-0'}`}
-                          loading="lazy"
-                        />
-                        <span className="absolute top-2.5 left-2.5 bg-[#1a1a1a] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
-                          New
-                        </span>
-                      </div>
-                      <div className="p-3">
-                        <h4 className="text-xs font-bold text-gray-900 group-hover/card:text-[#c9a96e] transition-colors">Linen Casual Blazer</h4>
-                        <div className="flex justify-between items-center mt-1">
-                          <span className="text-xs font-bold text-gray-900">₹2,999</span>
-                          <span className="text-[9px] text-gray-500 font-medium">Sizes M–XL • 3 Colors</span>
+                    {loading ? (
+                      // Render Shimmer Skeletons
+                      [1, 2, 3].map(i => (
+                        <div key={i} className="rounded-xl overflow-hidden border border-gray-100 bg-[#fafafa] p-3 space-y-2">
+                          <div className="aspect-[4/3] bg-gray-200 animate-pulse rounded-lg" />
+                          <div className="h-3 bg-gray-200 animate-pulse rounded w-2/3" />
+                          <div className="h-3 bg-gray-200 animate-pulse rounded w-1/3" />
                         </div>
+                      ))
+                    ) : filteredPhoneProducts.length > 0 ? (
+                      filteredPhoneProducts.map(p => {
+                        const productImg = p.images?.[0] || p.image || 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=450&h=338&fit=crop';
+                        return (
+                          <div 
+                            key={p.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedProduct(p);
+                              if (p.sizes && p.sizes.length > 0) setSelectedSize(p.sizes[0]);
+                              if (p.colors && p.colors.length > 0) setSelectedColor(p.colors[0]);
+                              setActiveScreen('detail');
+                            }}
+                            className="rounded-xl overflow-hidden border border-gray-100 bg-[#fafafa] hover:shadow-md transition-all duration-300 group/card cursor-pointer"
+                          >
+                            <div className="relative aspect-[4/3] bg-gray-200">
+                              <img 
+                                src={productImg} 
+                                alt={p.name}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                              {p.badge && (
+                                <span className="absolute top-2.5 left-2.5 bg-[#1a1a1a] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
+                                  {p.badge}
+                                </span>
+                              )}
+                            </div>
+                            <div className="p-3">
+                              <h4 className="text-xs font-bold text-gray-900 group-hover/card:text-[#c9a96e] transition-colors line-clamp-1">{p.name}</h4>
+                              <div className="flex justify-between items-center mt-1">
+                                <span className="text-xs font-bold text-gray-900">₹{p.price}</span>
+                                <span className="text-[9px] text-gray-500 font-medium">
+                                  {p.sizes?.length ? `Sizes ${p.sizes[0]}–${p.sizes[p.sizes.length-1]}` : 'Standard Size'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center py-8 text-gray-400 text-xs">
+                        No matches found.
                       </div>
-                    </div>
-
-                    {/* Card 2: Beige Trench Coat */}
-                    <div className="rounded-xl overflow-hidden border border-gray-100 bg-[#fafafa] hover:shadow-md transition-all duration-300 group/card">
-                      <div className="relative aspect-[4/3] bg-gray-200">
-                        {!imgLoaded.coat && (
-                          <div className="absolute inset-0 bg-gradient-to-tr from-[#ead7d7] to-[#ebdbe5] animate-pulse" />
-                        )}
-                        <img 
-                          src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=450&h=338&fit=crop" 
-                          alt="Beige Trench Coat"
-                          onLoad={() => handleImageLoad('coat')}
-                          className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded.coat ? 'opacity-100' : 'opacity-0'}`}
-                          loading="lazy"
-                        />
-                        <span className="absolute top-2.5 left-2.5 bg-[#c9a96e] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full">
-                          Trending
-                        </span>
-                      </div>
-                      <div className="p-3">
-                        <h4 className="text-xs font-bold text-gray-900 group-hover/card:text-[#c9a96e] transition-colors">Beige Trench Coat</h4>
-                        <div className="flex justify-between items-center mt-1">
-                          <span className="text-xs font-bold text-gray-900">₹3,499</span>
-                          <span className="text-[9px] text-gray-500 font-medium">Sizes S–L • Free Return</span>
-                        </div>
-                      </div>
-                    </div>
-
+                    )}
                   </div>
                 </div>
               ) : (
@@ -339,7 +381,7 @@ export default function Hero() {
                   <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-100">
                     <button 
                       onClick={(e) => { e.stopPropagation(); setActiveScreen('feed'); }}
-                      className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                      className="p-1.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
                     >
                       <ArrowLeft className="w-4 h-4 text-gray-700" />
                     </button>
@@ -347,97 +389,120 @@ export default function Hero() {
                     <ShoppingBag className="w-4 h-4 text-gray-700 hover:text-[#c9a96e] transition-colors" />
                   </div>
 
-                  {/* Content Container */}
-                  <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 scrollbar-none">
-                    {/* Big Image Showcase */}
-                    <div className="relative aspect-[3/3.2] bg-gray-100 rounded-2xl overflow-hidden shadow-sm">
-                      <img 
-                        src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&h=530&fit=crop" 
-                        alt="Linen Blazer Detail"
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute top-3 right-3 bg-[#eaf7ee] text-[#1e7e34] border border-[#cbeed4] text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm">
-                        In Stock
-                      </span>
-                    </div>
-
-                    {/* Name & price metadata */}
-                    <div>
-                      <div className="flex justify-between items-start">
-                        <h4 className="text-base font-bold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          Linen Casual Blazer
-                        </h4>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-                          <span className="text-xs font-bold text-gray-900">4.8</span>
+                  {selectedProduct ? (
+                    <>
+                      {/* Content Container */}
+                      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 scrollbar-none">
+                        {/* Big Image Showcase */}
+                        <div className="relative aspect-[3/3.2] bg-gray-100 rounded-2xl overflow-hidden shadow-sm">
+                          <img 
+                            src={selectedProduct.images?.[0] || selectedProduct.image || 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&h=530&fit=crop'} 
+                            alt={selectedProduct.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute top-3 right-3 bg-[#eaf7ee] text-[#1e7e34] border border-[#cbeed4] text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm">
+                            {selectedProduct.inStock ? 'In Stock' : 'Out of Stock'}
+                          </span>
                         </div>
-                      </div>
-                      <p className="text-xs text-brand-gray mt-0.5">Premium tailored collection</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-base font-bold text-gray-900">₹2,999</span>
-                        <span className="text-xs text-gray-400 line-through">₹3,499</span>
-                        <span className="text-[10px] text-green-600 font-bold bg-green-50 border border-green-100 rounded px-1.5">15% OFF</span>
-                      </div>
-                    </div>
 
-                    {/* Color swatches */}
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">Select Color</span>
-                      <div className="flex gap-2.5">
-                        {[
-                          { id: 'beige', hex: '#d2b48c' },
-                          { id: 'slate', hex: '#7b8c9d' },
-                          { id: 'olive', hex: '#5b6951' },
-                          { id: 'navy', hex: '#1d2731' }
-                        ].map(c => (
-                          <button
-                            key={c.id}
-                            onClick={(e) => { e.stopPropagation(); setSelectedColor(c.id); }}
-                            style={{ backgroundColor: c.hex }}
-                            className={`w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center ${
-                              selectedColor === c.id ? 'border-brand-black scale-110 shadow-sm' : 'border-transparent hover:scale-105'
-                            }`}
-                          >
-                            {selectedColor === c.id && (
-                              <Check className={`w-3.5 h-3.5 ${c.id === 'beige' ? 'text-black' : 'text-white'}`} strokeWidth={3} />
+                        {/* Name & price metadata */}
+                        <div>
+                          <div className="flex justify-between items-start">
+                            <h4 className="text-base font-bold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
+                              {selectedProduct.name}
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                              <span className="text-xs font-bold text-gray-900">{selectedProduct.rating || '4.5'}</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-brand-gray mt-0.5">{selectedProduct.subcategory || 'Collection'}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-base font-bold text-gray-900">₹{selectedProduct.price}</span>
+                            {selectedProduct.originalPrice && (
+                              <>
+                                <span className="text-xs text-gray-400 line-through">₹{selectedProduct.originalPrice}</span>
+                                <span className="text-[10px] text-green-600 font-bold bg-green-50 border border-green-100 rounded px-1.5">{selectedProduct.discount || '15'}% OFF</span>
+                              </>
                             )}
-                          </button>
-                        ))}
+                          </div>
+                        </div>
+
+                        {/* Color swatches */}
+                        {selectedProduct.colors && selectedProduct.colors.length > 0 && (
+                          <div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">Select Color</span>
+                            <div className="flex gap-2.5">
+                              {selectedProduct.colors.map(col => {
+                                const hexMap = {
+                                  black: '#1a1a1a',
+                                  white: '#f9f9f9',
+                                  navy: '#1d2731',
+                                  grey: '#7b8c9d',
+                                  beige: '#d2b48c',
+                                  red: '#ff3b30',
+                                  green: '#34c759'
+                                };
+                                const colorHex = hexMap[col.toLowerCase()] || col;
+                                return (
+                                  <button
+                                    key={col}
+                                    onClick={(e) => { e.stopPropagation(); setSelectedColor(col); }}
+                                    style={{ backgroundColor: colorHex }}
+                                    className={`w-6 h-6 rounded-full border border-gray-300 transition-all flex items-center justify-center cursor-pointer ${
+                                      selectedColor === col ? 'ring-2 ring-black scale-110 shadow-sm' : 'hover:scale-105'
+                                    }`}
+                                  >
+                                    {selectedColor === col && (
+                                      <Check className={`w-3 h-3 ${col.toLowerCase() === 'white' ? 'text-black' : 'text-white'}`} strokeWidth={3} />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Size Selector pills */}
+                        {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
+                          <div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">Select Size</span>
+                            <div className="flex gap-2">
+                              {selectedProduct.sizes.map(sz => (
+                                <button
+                                  key={sz}
+                                  onClick={(e) => { e.stopPropagation(); setSelectedSize(sz); }}
+                                  className={`w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center border transition-all cursor-pointer ${
+                                    selectedSize === sz
+                                      ? 'border-[#1a1a1a] bg-[#1a1a1a] text-white shadow-sm'
+                                      : 'border-gray-200 hover:border-[#1a1a1a] text-gray-700 bg-gray-50'
+                                  }`}
+                                >
+                                  {sz}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                       </div>
-                    </div>
 
-                    {/* Size Selector pills */}
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">Select Size</span>
-                      <div className="flex gap-2">
-                        {['XS', 'S', 'M', 'L', 'XL'].map(sz => (
-                          <button
-                            key={sz}
-                            onClick={(e) => { e.stopPropagation(); setSelectedSize(sz); }}
-                            className={`w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center border transition-all ${
-                              selectedSize === sz
-                                ? 'border-[#1a1a1a] bg-[#1a1a1a] text-white shadow-sm'
-                                : 'border-gray-200 hover:border-[#1a1a1a] text-gray-700 bg-gray-50'
-                            }`}
-                          >
-                            {sz}
-                          </button>
-                        ))}
+                      {/* Sticky Footer Add to bag button */}
+                      <div className="border-t border-gray-100 px-4 pt-3 bg-white/95 backdrop-blur-md">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); alert(`${selectedProduct.name} added to bag!`); }}
+                          className="w-full bg-[#1a1a1a] text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-xl hover:bg-black transition-all flex items-center justify-center gap-2 shadow-md active:scale-95 cursor-pointer"
+                        >
+                          <ShoppingBag className="w-4 h-4" />
+                          <span>Add to Bag</span>
+                        </button>
                       </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-20 text-gray-400 text-xs">
+                      No product selected.
                     </div>
-
-                  </div>
-
-                  {/* Sticky Footer Add to bag button */}
-                  <div className="border-t border-gray-100 px-4 pt-3 bg-white/95 backdrop-blur-md">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); alert('Item added to bag!'); }}
-                      className="w-full bg-[#1a1a1a] text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-xl hover:bg-black transition-all flex items-center justify-center gap-2 shadow-md active:scale-95"
-                    >
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Add to Bag</span>
-                    </button>
-                  </div>
+                  )}
 
                 </div>
               )}
