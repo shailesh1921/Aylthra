@@ -54,15 +54,157 @@ const ANIMATIONS_CSS = `
   }
 `;
 
+// ─── Default Curated Clothes for Phone Mockup ─────────
+const DEFAULT_PHONE_PRODUCTS = [
+  {
+    id: 'hero-1',
+    name: 'Tailored Wool Blazer',
+    category: 'men',
+    subcategory: 'outerwear',
+    price: 2999,
+    originalPrice: 3499,
+    discount: 15,
+    rating: 4.9,
+    badge: 'Bestseller',
+    sizes: ['S', 'M', 'L', 'XL'],
+    colors: ['Charcoal', 'Navy', 'Camel'],
+    inStock: true,
+    images: [
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=750&fit=crop',
+      'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=600&h=750&fit=crop'
+    ]
+  },
+  {
+    id: 'hero-2',
+    name: 'Silk Evening Slip Dress',
+    category: 'women',
+    subcategory: 'dresses',
+    price: 3299,
+    originalPrice: 3899,
+    discount: 15,
+    rating: 4.8,
+    badge: 'New',
+    sizes: ['XS', 'S', 'M', 'L'],
+    colors: ['Champagne', 'Black', 'Emerald'],
+    inStock: true,
+    images: [
+      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=750&fit=crop',
+      'https://images.unsplash.com/photo-1568252542512-9fe8fe9c87bb?w=600&h=750&fit=crop'
+    ]
+  },
+  {
+    id: 'hero-3',
+    name: 'Linen Casual Summer Blazer',
+    category: 'men',
+    subcategory: 'jackets',
+    price: 2499,
+    originalPrice: 2999,
+    discount: 16,
+    rating: 4.7,
+    badge: 'Trending',
+    sizes: ['M', 'L', 'XL'],
+    colors: ['Beige', 'Sand', 'Olive'],
+    inStock: true,
+    images: [
+      'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=750&fit=crop'
+    ]
+  },
+  {
+    id: 'hero-4',
+    name: 'Cashmere Oversized Knit Sweater',
+    category: 'women',
+    subcategory: 'knitwear',
+    price: 2199,
+    originalPrice: 2699,
+    discount: 18,
+    rating: 4.9,
+    badge: 'Bestseller',
+    sizes: ['XS', 'S', 'M', 'L'],
+    colors: ['Ivory', 'Mocha', 'Heather Grey'],
+    inStock: true,
+    images: [
+      'https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=750&fit=crop',
+      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600&h=750&fit=crop'
+    ]
+  },
+  {
+    id: 'hero-5',
+    name: 'Double-Breasted Trench Coat',
+    category: 'women',
+    subcategory: 'outerwear',
+    price: 4499,
+    originalPrice: 5299,
+    discount: 15,
+    rating: 4.9,
+    badge: 'Premium',
+    sizes: ['S', 'M', 'L'],
+    colors: ['Camel', 'Black', 'Stone'],
+    inStock: true,
+    images: [
+      'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&h=750&fit=crop'
+    ]
+  },
+  {
+    id: 'hero-6',
+    name: 'Essential Crisp Oxford Shirt',
+    category: 'men',
+    subcategory: 'shirts',
+    price: 1899,
+    originalPrice: 2299,
+    discount: 17,
+    rating: 4.6,
+    badge: 'Essential',
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    colors: ['White', 'Light Blue', 'Navy'],
+    inStock: true,
+    images: [
+      'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&h=750&fit=crop'
+    ]
+  },
+  {
+    id: 'hero-7',
+    name: 'Pleated A-Line Midi Skirt',
+    category: 'women',
+    subcategory: 'skirts',
+    price: 1799,
+    originalPrice: 2199,
+    discount: 18,
+    rating: 4.7,
+    badge: 'Trending',
+    sizes: ['XS', 'S', 'M', 'L'],
+    colors: ['Terracotta', 'Sage', 'Black'],
+    inStock: true,
+    images: [
+      'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=600&h=750&fit=crop'
+    ]
+  },
+  {
+    id: 'hero-8',
+    name: 'Tailored Minimalist Chinos',
+    category: 'men',
+    subcategory: 'trousers',
+    price: 1999,
+    originalPrice: 2499,
+    discount: 20,
+    rating: 4.5,
+    badge: null,
+    sizes: ['30', '32', '34', '36'],
+    colors: ['Khaki', 'Olive', 'Navy'],
+    inStock: true,
+    images: [
+      'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&h=750&fit=crop'
+    ]
+  }
+];
+
 export default function Hero() {
   const [activeScreen, setActiveScreen] = useState('feed'); // 'feed' (Screen 1) or 'detail' (Screen 2)
   const [searchQuery, setSearchQuery] = useState(''); // for AI stylist
   const [phoneSearchQuery, setPhoneSearchQuery] = useState(''); // for phone mockup
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productsList, setProductsList] = useState(DEFAULT_PHONE_PRODUCTS);
+  const [selectedProduct, setSelectedProduct] = useState(DEFAULT_PHONE_PRODUCTS[0]);
   const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState('');
-  const [productsList, setProductsList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [selectedColor, setSelectedColor] = useState('Charcoal');
   
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -76,19 +218,17 @@ export default function Hero() {
     setImgLoaded(prev => ({ ...prev, [key]: true }));
   };
 
-  // Fetch live products from Supabase
+  // Optionally enhance products from Supabase if online
   useEffect(() => {
     async function fetchProducts() {
       try {
-        setLoading(true);
         const { data, error } = await supabase
           .from('products')
           .select('*');
         if (error) throw error;
-        setProductsList(data || []);
-        
-        // Set default selected product for screen 2
         if (data && data.length > 0) {
+          // Merge with default items so we always have a rich catalog
+          setProductsList(data);
           setSelectedProduct(data[0]);
           if (data[0].sizes && data[0].sizes.length > 0) {
             setSelectedSize(data[0].sizes[0]);
@@ -98,9 +238,7 @@ export default function Hero() {
           }
         }
       } catch (err) {
-        console.error('Error fetching products inside Hero mockup:', err.message);
-      } finally {
-        setLoading(false);
+        console.warn('Using default luxury clothes catalog for phone mockup:', err.message);
       }
     }
     fetchProducts();
@@ -317,16 +455,7 @@ export default function Hero() {
 
                   {/* Scrollable feed products */}
                   <div className="space-y-3 flex-1 overflow-y-auto scrollbar-none pr-[1px]">
-                    {loading ? (
-                      // Render Shimmer Skeletons
-                      [1, 2, 3].map(i => (
-                        <div key={i} className="rounded-xl overflow-hidden border border-gray-100 bg-[#fafafa] p-3 space-y-2">
-                          <div className="aspect-[4/3] bg-gray-200 animate-pulse rounded-lg" />
-                          <div className="h-3 bg-gray-200 animate-pulse rounded w-2/3" />
-                          <div className="h-3 bg-gray-200 animate-pulse rounded w-1/3" />
-                        </div>
-                      ))
-                    ) : filteredPhoneProducts.length > 0 ? (
+                    {filteredPhoneProducts.length > 0 ? (
                       filteredPhoneProducts.map(p => {
                         const productImg = p.images?.[0] || p.image || 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=450&h=338&fit=crop';
                         return (
